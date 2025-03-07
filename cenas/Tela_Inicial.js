@@ -15,6 +15,7 @@ class TelaInicial extends Phaser.Scene {
     preload() {
         this.load.image("play", "assets/play_bt.png"); // Carregando a imagem do botão "play"
         this.load.image('bg', 'assets/background_inicial.png'); 
+        this.load.image("controle", "assets/controle.webp"); // Carregando a imagem do botão "configurações"
     }
 
     // Função chamada quando a cena é criada
@@ -28,6 +29,11 @@ class TelaInicial extends Phaser.Scene {
             .setScale(.5).setOrigin(0, 0).setInteractive().setVisible(false);
 
         this.playBt.setVisible(true);    
+
+        this.controle = this.add.image(this.game.config.width /2 - 190, this.game.config.height / 10 * 0.1, 'controle')
+            .setScale(.2).setOrigin(0, 0).setInteractive().setVisible(false);
+
+        this.controle.setVisible(true);  
 
         // Configuração de evento para iniciar o jogo ao clicar no botão "play"
         this.playBt.on('pointerdown', function () {
