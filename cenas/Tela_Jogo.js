@@ -11,7 +11,11 @@ class TelaJogo extends Phaser.Scene {
                 debug: false,
                 gravity: { y: 400 }
                } 
-            } 
+            },
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            }, 
         });
     }
 
@@ -64,15 +68,18 @@ class TelaJogo extends Phaser.Scene {
     preload() {
         this.load.image('tela', 'assets/background.jpg');
         this.load.spritesheet('chaves', 'assets/sprite.png', { frameWidth: this.player.width, frameHeight: this.player.height });
+        this.load.spritesheet('chaves_2', 'assets/sprite_2.png', { frameWidth: this.player.width, frameHeight: this.player.height });
         this.load.image('colBottom', 'assets/obstaculo.png');
         this.load.image('restart', 'assets/restart_bt.avif');
         this.load.image('lanche', 'assets/sanduiche.png');
         this.load.audio('musica_fundo', 'assets/musica.mp3'); 
+        this.load.image('controle', 'assets/controle.webp');
     }
 
     // Criação de elementos e configurações iniciais da cena
     create() {
 
+        
         // Adiciona uma música de fundo ao jogo
         this.musica = this.sound.add('musica_fundo', { volume: 0.5, loop: true });
         this.musica.play();
@@ -88,22 +95,37 @@ class TelaJogo extends Phaser.Scene {
         this.barreira.barreira1_obj.body.setSize(this.barreira.barreira1_obj.width * 0.8, this.barreira.barreira1_obj.height * 0.8); // Reduz a área de colisão
         this.barreira.barreira1_obj.body.setOffset((this.barreira.barreira1_obj.width - this.barreira.barreira1_obj.body.width) / 2, (this.barreira.barreira1_obj.height - this.barreira.barreira1_obj.body.height) / 2); // Centraliza a colisão
 
-        // Adiciona jogador e suas propriedades físicas
-        this.player.obj = this.physics.add.sprite(100, 500, 'chaves').setScale(1.8);
-        this.player.obj.body.setSize(50, 80, true);
-        this.player.obj.setCollideWorldBounds(true);
+        // Verifica a orientação da tela  
+        if(game.scale.orientation === Phaser.Scale.LANDSCAPE){
+            this.player.obj = this.physics.add.sprite(100, 500, 'chaves').setScale(1.8); // adiciona um sprite
+            this.player.obj.body.setSize(50, 80, true);
+            this.player.obj.setCollideWorldBounds(true);
+
+            this.anims.create({ // configura a animação do player
+                key: 'fly',
+                frames: this.anims.generateFrameNumbers('chaves', { start: 0, end: 2 }),
+                frameRate: 7,
+                repeat: -1
+            });
+         
+        } else if(game.scale.orientation === Phaser.Scale.PORTRAIT){
+            this.player.obj = this.physics.add.sprite(100, 500, 'chaves_2').setScale(1.8); // muda o sprite adicionado anteriormente 
+            this.player.obj.body.setSize(50, 80, true);
+            this.player.obj.setCollideWorldBounds(true);
+
+            this.anims.create({ // configura a animação do player
+                key: 'fly',
+                frames: this.anims.generateFrameNumbers('chaves_2', { start: 0, end: 2 }),
+                frameRate: 7,
+                repeat: -1
+            });
+        }
+
 
         // Remove a gravidade do player
         this.player.obj.body.allowGravity = true;
 
-        // Adiciona animação da imagem do jogador - define os sprites e as suas velocidades de mudança 
-        this.anims.create({
-            key: 'fly',
-            frames: this.anims.generateFrameNumbers('chaves', { start: 0, end: 2 }),
-            frameRate: 7,
-            repeat: -1
-        });
-
+       
         // Adiciona a animação do movimento do jogador
         this.player.obj.anims.play('fly');
 
@@ -154,9 +176,9 @@ class TelaJogo extends Phaser.Scene {
             this.lanches.push(this.lanche);
             this.scoreText.setText('Placar' + ': ' + (this.lanches.length - 1)); // Atualiza o placar com o número de barris pulados e de moedas coletadas 
         };
-
         
 
+     
       
     }
         
@@ -216,7 +238,8 @@ class TelaJogo extends Phaser.Scene {
 
         this.player.obj.body.touching.down;
         
-       
+    
+    
     }
 
     // Função chamada quando o jogador colide com uma coluna - quando identificada uma colisão o jogo para e o valor do recorde é registardo
